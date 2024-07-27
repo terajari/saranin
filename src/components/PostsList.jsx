@@ -3,13 +3,33 @@
 import NewPost from './NewPost';
 import Modal from './Modal';
 import classes from './PostsList.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Post from './Post'
 
 function PostsList({isClosing, onStopPosting}) {
   const [posts, setPost] = useState([])
 
-  const addPost = (postData) => setPost([postData, ...posts])
+  const addPost = (postData) => {
+    fetch('http://localhost:8080/posts', {
+      method: 'POST',
+      body: JSON.stringify(postData),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    setPost([postData, ...posts])
+  }
+
+  useEffect(()=>{
+    async function fetchPost() {
+      const response = await fetch('http://localhost:8080/posts')
+      const resData = await response.json()
+      setPost(resData.posts)
+    }
+    fetchPost()
+  }, [])
+
+
   return (
     <>
     {isClosing && <Modal onClose={onStopPosting}>
